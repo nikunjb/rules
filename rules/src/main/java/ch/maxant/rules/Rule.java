@@ -17,51 +17,53 @@
  */
 package ch.maxant.rules;
 
+import java.util.Map;
+
 /**
- * An {@link Engine} contains a list of rules.  The engine 
- * can then be asked to provide the outcome of the Action associated with the best 
- * matching rule (see {@link Engine#executeBestAction(String, Object, java.util.Collection)}), 
- * or to provide a list of matching rules (see {@link Engine#getMatchingRules(String, Object)}).  
+ * An {@link Engine} contains a list of rules.  The engine
+ * can then be asked to provide the outcome of the Action associated with the best
+ * matching rule (see {@link Engine#executeBestAction(String, Object, java.util.Collection)}),
+ * or to provide a list of matching rules (see {@link Engine#getMatchingRules(String, Object)}).
  * Each rule is "evaluated"
- * by using the {@link #expression} supplied in the constructor 
+ * by using the {@link #expression} supplied in the constructor
  * {@link #Rule(String, String, String, int, String)}.
- * The expression must be valid expression language.  During evaludation, 
+ * The expression must be valid expression language.  During evaludation,
  * the input object passed to the engine is mapped to the name "input", which can be
  * used in the rules.  For example, consider the following rule:<br>
  * <br>
  * &nbsp;&nbsp;&nbsp;<code>input.person1.name == "ant" &amp;&amp; input.person1.gender == "male"</code><br>
  * <br>
  * Note how the rule evaluates to "true" or "false".  For any rule to be a candidate
- * to have an associated {@link IAction} executed, it must evaluate to "true".  The rule in the 
- * example above requires an input object which conforms to the bean specification, and 
+ * to have an associated {@link IAction} executed, it must evaluate to "true".  The rule in the
+ * example above requires an input object which conforms to the bean specification, and
  * which is composed of an object named "person1", which has attributes"name"
  * and "gender".  If an input object is supplied to the engine such that this rule
- * evaluates to true, then it is a candidate to have its action run, either by 
- * the engine, when {@link Engine#executeBestAction(String, Object, java.util.Collection)} is called, 
+ * evaluates to true, then it is a candidate to have its action run, either by
+ * the engine, when {@link Engine#executeBestAction(String, Object, java.util.Collection)} is called,
  * or by the application, when {@link Engine#getMatchingRules(String, Object)}
  * returns the rule and the application decides to run the action.<br>
  * <br>
- * Rules belong to namespaces, so that a single engine can be used to evaluate rules 
+ * Rules belong to namespaces, so that a single engine can be used to evaluate rules
  * from different components within an application.  within a namespace, all rules must
  * have unique names (this is checked when adding rules to an engine).  The reason is that
- * rules can be composed of {@link SubRule}s and when they are composed in that manner, 
+ * rules can be composed of {@link SubRule}s and when they are composed in that manner,
  * rules refer to subrules by their names.<br>
  * <br>
- * A rule has a priority too.  In certain cases, where the application only requires the 
- * best rule to be used, the priority helps the application decide which rule to run 
+ * A rule has a priority too.  In certain cases, where the application only requires the
+ * best rule to be used, the priority helps the application decide which rule to run
  * when there is more than one match.<br>
  * <br>
  * The description in a rule is imply to aid in rule management.<br>
  * <br>
  * Typically rules are customisable at runtime using some kind of administration UI.
- * While this framework does not provide an out of the box framework, it has been 
+ * While this framework does not provide an out of the box framework, it has been
  * designed such that the rules could be created from a persistent store.
  * It is entirely conceivable that an application would load rules from a database
- * and execute existing actions based on the rules.  Only when a new action is 
+ * and execute existing actions based on the rules.  Only when a new action is
  * required, would an application need to be upgraded and redeployed.<br>
  * <br>
  * For more info on rules, see <a href='http://mvel.codehaus.org/Language+Guide+for+2.0'>http://mvel.codehaus.org/Language+Guide+for+2.0</a>.
- * 
+ *
  * @see SubRule
 *  */
 public class Rule implements Comparable<Rule> {
@@ -72,6 +74,7 @@ public class Rule implements Comparable<Rule> {
     private final int priority;
     private final String namespace;
     private final String description;
+    private final Map<String, Class> inputTypeMap;
 
     /**
 	 * @param name The name of the rule.  Should be unique within the namespace (tested when adding rules to the {@link Engine}).
@@ -82,18 +85,19 @@ public class Rule implements Comparable<Rule> {
 	 * @param description A description to help manage rules.
      */
     public Rule(final String name, final String expression, final String outcome, final int priority,
-            final String namespace, final String description) {
+            final String namespace, final String description, final Map<String, Class> inputTypeMap) {
 
         if(name == null) throw new AssertionError("name may not be null");
         if(expression == null) throw new AssertionError("expression may not be null");
         if(namespace == null) throw new AssertionError("namespace may not be null");
-        
+
         this.name = name;
         this.expression = expression;
         this.outcome = outcome;
         this.priority = priority;
         this.namespace = namespace;
         this.description = description;
+        this.inputTypeMap = inputTypeMap;
     }
 
     /**
@@ -101,7 +105,7 @@ public class Rule implements Comparable<Rule> {
      */
     public Rule(final String name, final String expression, final String outcome, final int priority,
             final String namespace){
-        this(name, expression, outcome, priority, namespace, null);
+        this(name, expression, outcome, priority, namespace, null, null);
     }
 
     @Override
@@ -203,5 +207,8 @@ public class Rule implements Comparable<Rule> {
     public String getDescription() {
         return description;
     }
-    
+
+    public Map<String, Class> getInputTypeMap() {
+        return inputTypeMap;
+    }
 }

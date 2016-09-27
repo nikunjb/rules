@@ -37,7 +37,7 @@ public class SubRule extends Rule {
 	 * @param description A description to help manage rules.
 	 */
     public SubRule(String name, String expression, String namespace, String description) {
-        super(name, expression, null, -1, namespace, description);
+        super(name, expression, null, -1, namespace, description, null);
     }
 
     /**

@@ -21,10 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,8 +53,11 @@ public class DefaultEngineTest extends AbstractEngineTest {
 	
 	@Test
 	public void testExecuteBestActionManyActionsFiring() throws ScriptException, IOException{
-		Rule r1 = new Rule("SendEmailToUser", "input.config.sendUserEmail == true", "SendEmailToUser", 1, "ch.maxant.someapp.config");
-		Rule r2 = new Rule("SendEmailToModerator", "input.config.sendAdministratorEmail == true and input.user.numberOfPostings < 5", "SendEmailToModerator", 2, "ch.maxant.someapp.config");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", ForumSetup.class);
+
+		Rule r1 = new Rule("SendEmailToUser", "input.config.sendUserEmail == true", "SendEmailToUser", 1, "ch.maxant.someapp.config", null, inputTypeMap);
+		Rule r2 = new Rule("SendEmailToModerator", "input.config.sendAdministratorEmail == true and input.user.numberOfPostings < 5", "SendEmailToModerator", 2, "ch.maxant.someapp.config", null, inputTypeMap);
 		List<Rule> rules = Arrays.asList(r1, r2);
 		
 		final List<String> log = new ArrayList<String>();
@@ -112,9 +112,13 @@ public class DefaultEngineTest extends AbstractEngineTest {
 				"}" +
 				"return false;";
 
-		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", Classroom.class);
+		inputTypeMap.put("student", Person.class);
+
+		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early", inputTypeMap);
 		
-		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default");
+		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default", null);
 		
 		Classroom classroom = new Classroom();
 		classroom.getStudents().add(new Person(12));
@@ -143,9 +147,12 @@ public class DefaultEngineTest extends AbstractEngineTest {
 				"}\n" +
 				"return false;";
 
-		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", Classroom.class);
+
+		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early", inputTypeMap);
 		
-		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default");
+		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default", null);
 		
 		long start = System.currentTimeMillis();
 		final Engine engine = new Engine(Arrays.asList(r1, r2), true);

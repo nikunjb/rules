@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.mvel2.MVEL;
+import org.mvel2.ParserContext;
 
 /**
  * A Rule Engine.  Can evaluate rules and execute {@link IAction}s or simply provide an 
@@ -206,7 +207,7 @@ public class Engine {
 					if(r instanceof SubRule){
 					    parsedRules.add(new SubRule(r.getName(), newExpression, r.getNamespace(), r.getDescription()));
 					}else{
-					    parsedRules.add(new Rule(r.getName(), newExpression, r.getOutcome(), r.getPriority(), r.getNamespace(), r.getDescription()));
+					    parsedRules.add(new Rule(r.getName(), newExpression, r.getOutcome(), r.getPriority(), r.getNamespace(), r.getDescription(), r.getInputTypeMap()));
 					}
 				}else{
 				    parsedRules.add(r);
@@ -241,6 +242,7 @@ public class Engine {
 			this.rules.add(new CompiledRule(r));
 			log.info("added rule: " + r);
 		}catch(org.mvel2.CompileException ex){
+			ex.printStackTrace();
 			log.warning("Failed to compile " + r.getFullyQualifiedName() + ": " + ex.getMessage());
 			if(throwExceptionIfCompilationFails){
 				throw new CompileException(ex.getMessage());
@@ -417,7 +419,10 @@ public class Engine {
 		private Serializable compiled;
 		private CompiledRule(Rule rule) {
 			this.rule = rule;
-			this.compiled = MVEL.compileExpression(rule.getExpression());
+			ParserContext ctx = new ParserContext();
+			ctx.setStrongTyping(true);
+			ctx.addInputs(rule.getInputTypeMap());
+			this.compiled = MVEL.compileExpression(rule.getExpression(), ctx);
 		}
 		private Serializable getCompiled() {
 			return compiled;

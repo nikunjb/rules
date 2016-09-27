@@ -125,9 +125,9 @@ public class JavascriptEngineTest extends AbstractEngineTest {
 				"	return student.age < 10;" +
 				"});";
 
-		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early");
+		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early", null);
 		
-		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default");
+		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default", null);
 		
 		Classroom classroom = new Classroom();
 		classroom.getStudents().add(new Person(12));
@@ -148,9 +148,9 @@ public class JavascriptEngineTest extends AbstractEngineTest {
 	public void testComplexRuleInLibrary() throws Exception {
 		String expression = "maxant.rule419(input) === 'Scam'";
 
-		Rule r1 = new Rule("mightBeScam", expression , "higherPremium", 1, "ch.maxant.rules", "If call to our library returns 'Scam', then this may be a scam, so charge a higher premium");
+		Rule r1 = new Rule("mightBeScam", expression , "higherPremium", 1, "ch.maxant.rules", "If call to our library returns 'Scam', then this may be a scam, so charge a higher premium", null);
 		
-		Rule r2 = new Rule("default", "true" , "standardPremium", 0, "ch.maxant.rules", "this is the default");
+		Rule r2 = new Rule("default", "true" , "standardPremium", 0, "ch.maxant.rules", "this is the default", null);
 
 		List<Person> people = new ArrayList<Person>();
 		people.add(new Person("John"));
@@ -173,9 +173,9 @@ public class JavascriptEngineTest extends AbstractEngineTest {
 				"	return student.age < 10;" +
 				"});";
 
-		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early");
+		Rule r1 = new Rule("containsStudentUnder10", expression , "leaveEarly", 1, "ch.maxant.rules", "If a class contains a student under 10 years of age, then the class may go home early", null);
 		
-		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default");
+		Rule r2 = new Rule("default", "true" , "leaveOnTime", 0, "ch.maxant.rules", "this is the default", null);
 		
 		long start = System.currentTimeMillis();
 		final Engine engine = new JavascriptEngine(Arrays.asList(r1, r2), true, "lodash-3.10.0.js");
@@ -244,7 +244,7 @@ public class JavascriptEngineTest extends AbstractEngineTest {
 
 		String expression = "rule420() === 40000.0"; //will only evaluate to true if there is no concurrency, because the function is stateful!
 
-		Rule r1 = new Rule("valueIsCorrect", expression, "threadSafe", 1, "ch.maxant.rules", "If this rule fires, then the engine is thread safe");
+		Rule r1 = new Rule("valueIsCorrect", expression, "threadSafe", 1, "ch.maxant.rules", "If this rule fires, then the engine is thread safe", null);
 		
 		Rule r2 = new Rule("default", "true" , "notThreadSafe", 0, "ch.maxant.rules");
 		

@@ -17,6 +17,8 @@
  */
 package ch.maxant.rules.blackbox
 
+import java.util
+
 import org.junit.Assert._
 import java.math.BigDecimal
 import org.junit.Test
@@ -30,13 +32,16 @@ import java.util.Arrays
 class EngineTest2 {
     /**
      * tests that when two rules exist, the rule with the highest priority is run.
-     * @throws ParseException 
+      *
+      * @throws ParseException
      * @throws CompileException 
      */
     @Test
     def test1() {
-        val rule1 = new Rule("R1", """input.p1.name == "ant" && input.p2.name == "clare" """, "outcome1", 1, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera")
-        val rule2 = new Rule("R2", "true", "outcome2", 0, "ch.maxant.produkte", "Default Regel")
+        val inputTypeMap : util.Map[String, Class[_]] = new util.HashMap[String, Class[_]]()
+
+        val rule1 = new Rule("R1", """input.p1.name == "ant" && input.p2.name == "clare" """, "outcome1", 1, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera", inputTypeMap)
+        val rule2 = new Rule("R2", "true", "outcome2", 0, "ch.maxant.produkte", "Default Regel", null)
         val rules = List(rule1, rule2)
 
         val action1 = new Action("outcome1") ( (input: MyInput) =>
