@@ -82,6 +82,7 @@ public class Rule implements Comparable<Rule> {
 	 * @param outcome The name of an action to run, if this rule is the winner.
 	 * @param priority The priority, used in determining which rule to run, if many evaluate true.  The higher the value, the higher the priority.
 	 * @param namespace A namespace, used for filtering rules.  The engine is passed a regular expression which is compared to this value.  Only matches are evaluated.
+     * @param inputTypeMap A map of the names of inputs to their respective class types. Used for strict type enforcement in MVEL. Note that this gets added to the default input and type provided at the Engine level.
 	 * @param description A description to help manage rules.
      */
     public Rule(final String name, final String expression, final String outcome, final int priority,
@@ -101,7 +102,14 @@ public class Rule implements Comparable<Rule> {
     }
 
     /**
-     * See {@link #Rule(String, String, String, int, String, String)}, just without a description.
+     * See {@link #Rule(String, String, String, int, String, String, Map<String, Class>)}, just without a description.
+     */
+    public Rule(String name, String expression, String outcome, int priority, String namespace, String description) {
+        this(name, expression, outcome, priority, namespace, description, null);
+    }
+
+    /**
+     * See {@link #Rule(String, String, String, int, String, String, Map<String, Class>)}, just without a description.
      */
     public Rule(final String name, final String expression, final String outcome, final int priority,
             final String namespace){

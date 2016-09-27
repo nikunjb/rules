@@ -139,7 +139,7 @@ public class JavascriptEngine extends Engine {
 	 * @param preloadPool if true, then before the constructor returns, it fills the pool.
 	 */
 	public JavascriptEngine(final Collection<Rule> rules, String inputName, boolean throwExceptionIfCompilationFails, Integer poolSize, boolean preloadPool, String... javascriptFilesToLoad) throws DuplicateNameException, CompileException, ParseException {
-		super(rules, inputName, throwExceptionIfCompilationFails, poolSize, javascriptFilesToLoad);
+		super(rules, inputName, throwExceptionIfCompilationFails, poolSize, javascriptFilesToLoad, false);
 		
 		if(preloadPool){
 			

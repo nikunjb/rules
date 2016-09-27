@@ -283,8 +283,8 @@ public abstract class AbstractEngineTest {
 		Rule rule= new Rule("1", "jane.age > 34", "veryOld", 1, "ch.maxant.produkte", null, inputTypeMap);
 		List<Rule> rules = Arrays.asList(rule);
 
-		assertEquals("veryOld", new Engine(rules, "jane", true).getBestOutcome(new Person(35)));
-		assertEquals(0, new Engine(rules, "jane", true).getMatchingRules(new Person(33)).size());
+		assertEquals("veryOld", new Engine(rules, "jane", true, false).getBestOutcome(new Person(35)));
+		assertEquals(0, new Engine(rules, "jane", true, false).getMatchingRules(new Person(33)).size());
 	}
 	
 	@Test

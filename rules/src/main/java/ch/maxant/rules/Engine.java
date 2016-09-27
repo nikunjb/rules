@@ -115,6 +115,8 @@ public class Engine {
 	protected final String[] javascriptFilesToLoad;
 	protected final Integer poolSize;
 
+	protected final boolean strictTypeChecking;
+
 	/**
 	 * @param rules The rules which define the system.
 	 * @param throwExceptionIfCompilationFails if true, and a rule cannot be compiled, then a {@link CompileException} will be thrown.
@@ -123,22 +125,36 @@ public class Engine {
 	 * @throws ParseException Thrown if a subrule which is referenced in a rule cannot be resolved.
 	 */
 	public Engine(final Collection<Rule> rules, boolean throwExceptionIfCompilationFails) throws DuplicateNameException, CompileException, ParseException {
-		this(rules, DEFAULT_INPUT_NAME, throwExceptionIfCompilationFails);
+		this(rules, DEFAULT_INPUT_NAME, throwExceptionIfCompilationFails, false);
+	}
+
+	/**
+	 * @param rules The rules which define the system.
+	 * @param throwExceptionIfCompilationFails if true, and a rule cannot be compiled, then a {@link CompileException} will be thrown.
+	 * @param strictTypeChecking if true, turns on strict type checking in MVEL. InputTypeMap to Rule objects will likely be required when this option is enabled.
+	 * @throws DuplicateNameException thrown if any rules have the same name within a namespace
+	 * @throws CompileException thrown if throwExceptionIfCompilationFails is true, and a rule fails to compile, because its expression is invalid
+	 * @throws ParseException Thrown if a subrule which is referenced in a rule cannot be resolved.
+	 */
+	public Engine(final Collection<Rule> rules, boolean throwExceptionIfCompilationFails, boolean strictTypeChecking) throws DuplicateNameException, CompileException, ParseException {
+		this(rules, DEFAULT_INPUT_NAME, throwExceptionIfCompilationFails, strictTypeChecking);
 	}
 
 	/**
 	 * See {@link #Engine(Collection, boolean)}
 	 * @param inputName the name of the input in scripts, normally "input", but you can specify your own name here.
+	 * @param strictTypeChecking if true, turns on strict type checking in MVEL. InputTypeMap to Rule objects will likely be required when this option is enabled.
 	 */
-	public Engine(final Collection<Rule> rules, String inputName, boolean throwExceptionIfCompilationFails) throws DuplicateNameException, CompileException, ParseException {
-		this(rules, inputName, throwExceptionIfCompilationFails, null, null);
+	public Engine(final Collection<Rule> rules, String inputName, boolean throwExceptionIfCompilationFails, boolean strictTypeChecking) throws DuplicateNameException, CompileException, ParseException {
+		this(rules, inputName, throwExceptionIfCompilationFails, null, null, strictTypeChecking);
 	}
 	
-	protected Engine(final Collection<Rule> rules, String inputName, boolean throwExceptionIfCompilationFails, Integer poolSize, String[] javascriptFilesToLoad) throws DuplicateNameException, CompileException, ParseException {
+	protected Engine(final Collection<Rule> rules, String inputName, boolean throwExceptionIfCompilationFails, Integer poolSize, String[] javascriptFilesToLoad, boolean strictTypeChecking) throws DuplicateNameException, CompileException, ParseException {
 		this.inputName = inputName;
 		this.throwExceptionIfCompilationFails = throwExceptionIfCompilationFails;
 		this.javascriptFilesToLoad = javascriptFilesToLoad;
 		this.poolSize = poolSize;
+		this.strictTypeChecking = strictTypeChecking;
 		init(rules);
 	}
 	
@@ -239,10 +255,9 @@ public class Engine {
 
 	private void addCompiledRule(boolean throwExceptionIfCompilationFails, Rule r) throws CompileException {
 		try{
-			this.rules.add(new CompiledRule(r));
+			this.rules.add(new CompiledRule(r, strictTypeChecking));
 			log.info("added rule: " + r);
 		}catch(org.mvel2.CompileException ex){
-			ex.printStackTrace();
 			log.warning("Failed to compile " + r.getFullyQualifiedName() + ": " + ex.getMessage());
 			if(throwExceptionIfCompilationFails){
 				throw new CompileException(ex.getMessage());
@@ -417,11 +432,13 @@ public class Engine {
 	private static final class CompiledRule {
 		private Rule rule;
 		private Serializable compiled;
-		private CompiledRule(Rule rule) {
+		private CompiledRule(Rule rule, boolean strictTypeChecking) {
 			this.rule = rule;
 			ParserContext ctx = new ParserContext();
-			ctx.setStrongTyping(true);
-			ctx.addInputs(rule.getInputTypeMap());
+			if(strictTypeChecking) {
+				ctx.setStrongTyping(true);
+				ctx.addInputs(rule.getInputTypeMap());
+			}
 			this.compiled = MVEL.compileExpression(rule.getExpression(), ctx);
 		}
 		private Serializable getCompiled() {
