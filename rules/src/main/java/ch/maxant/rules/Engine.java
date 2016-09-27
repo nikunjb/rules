@@ -320,9 +320,17 @@ public class Engine {
 			this.rules.add(new CompiledRule(r, strictTypeChecking));
 			log.info("added rule: " + r);
 		}catch(org.mvel2.CompileException ex){
-			log.warning("Failed to compile " + r.getFullyQualifiedName() + ": " + ex.getMessage());
+			String message;
+			// This try/catch is needed due to an issue with MVEL CompileException class throwing the StringIndexOutOfBoundsException
+			// from its implementation of getMessage() in certain situations.
+			try {
+				message = ex.getMessage();
+			} catch (StringIndexOutOfBoundsException ex2) {
+				message = "org.mvel2.CompileException led to a StringIndexOutOfBoundsException. Actual error was in rule " + r.getFullyQualifiedName();
+			}
+			log.warning("Failed to compile " + r.getFullyQualifiedName() + ": " + message);
 			if(throwExceptionIfCompilationFails){
-				throw new CompileException(ex.getMessage());
+				throw new CompileException(message);
 			}
 		}
 	}
@@ -475,6 +483,11 @@ public class Engine {
 			}
 			
 			Object o = MVEL.executeExpression(r.getCompiled(), vars);
+			if(o == null || !o.getClass().isAssignableFrom(Boolean.class)) {
+				String message = "Expression for Rule " + r.getRule().getFullyQualifiedName() + " did not produce a Boolean result";
+				log.warning(message);
+				throw new RuntimeException(message);
+			}
 			String msg = r.getRule().getFullyQualifiedName() + "-{" + r.getRule().getExpression() + "}";
 			if(String.valueOf(o).equals("true")){
 				matchingRules.add(r.getRule());
