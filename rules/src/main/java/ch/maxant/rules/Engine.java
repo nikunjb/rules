@@ -422,8 +422,8 @@ public class Engine {
 			}
 			
 			Object o = MVEL.executeExpression(r.getCompiled(), vars);
-			if(!o.getClass().isAssignableFrom(Boolean.class)) {
-				String message = "Expression for Rule " + r.getRule().getFullyQualifiedName() + " did not produce a boolean result";
+			if(o == null || !o.getClass().isAssignableFrom(Boolean.class)) {
+				String message = "Expression for Rule " + r.getRule().getFullyQualifiedName() + " did not produce a Boolean result";
 				log.warning(message);
 				throw new RuntimeException(message);
 			}
