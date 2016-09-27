@@ -25,7 +25,9 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -37,8 +39,11 @@ public class Java8EngineTest {
 	 */
 	@Test
 	public void testLambdas() throws DuplicateNameException, CompileException, ParseException {
-		Rule rule1 = new Rule("R1", "input.p1.name == \"ant\" && input.p2.name == \"clare\"", "outcome1", 0, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera");
-		Rule rule2 = new Rule("R2", "true", "outcome2", 1, "ch.maxant.produkte", "Default Regel");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", MyInput.class);
+
+		Rule rule1 = new Rule("R1", "input.p1.name == \"ant\" && input.p2.name == \"clare\"", "outcome1", 0, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera", inputTypeMap);
+		Rule rule2 = new Rule("R2", "true", "outcome2", 1, "ch.maxant.produkte", "Default Regel", null);
 		List<Rule> rules = Arrays.asList(rule1, rule2);
 
 		//to use a lambda, construct a SamAction and pass it a lambda.
@@ -94,8 +99,11 @@ public class Java8EngineTest {
 	}
 
 	private Collection<Rule> getRules() {
-		Rule rule1 = new Rule("R1", "input.p1.name == \"ant\" && input.p2.name == \"clare\"", "outcome1", 0, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera");
-		Rule rule2 = new Rule("R2", "true", "outcome2", 1, "ch.maxant.produkte", "Default Regel");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", MyInput.class);
+
+		Rule rule1 = new Rule("R1", "input.p1.name == \"ant\" && input.p2.name == \"clare\"", "outcome1", 0, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera", inputTypeMap);
+		Rule rule2 = new Rule("R2", "true", "outcome2", 1, "ch.maxant.produkte", "Default Regel", null);
         return Arrays.asList(rule1, rule2);
 	}
 	

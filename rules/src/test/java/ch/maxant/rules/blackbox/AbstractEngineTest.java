@@ -60,8 +60,11 @@ public abstract class AbstractEngineTest {
 	 */
 	@Test
 	public void test2() throws DuplicateNameException, CompileException, ParseException, ScriptException, IOException {
-		Rule rule1 = new Rule("R1", "input.p1.name == \"ant\" && input.p2.name == \"clare\"", "outcome1", 0, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera");
-		Rule rule2 = new Rule("R2", "true", "outcome2", 1, "ch.maxant.produkte", "Default Regel");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", MyInput.class);
+
+		Rule rule1 = new Rule("R1", "input.p1.name == \"ant\" && input.p2.name == \"clare\"", "outcome1", 0, "ch.maxant.produkte", "Spezi Regel für Familie Kutschera", inputTypeMap);
+		Rule rule2 = new Rule("R2", "true", "outcome2", 1, "ch.maxant.produkte", "Default Regel", null);
 		List<Rule> rules = Arrays.asList(rule1, rule2);
 
 		AbstractAction<MyInput, BigDecimal> action1 = new AbstractAction<AbstractEngineTest.MyInput, BigDecimal>("outcome1") {
@@ -97,8 +100,8 @@ public abstract class AbstractEngineTest {
 	
 	@Test
 	public void testNamespaceMatching() throws DuplicateNameException, CompileException, ParseException{
-		Rule rule1 = new Rule("R1", "true", "outcome1", 0, "ch.maxant.produkte", "one");
-		Rule rule2 = new Rule("R1", "true", "outcome2", 1, "ch.maxant.fahrplan", "two");
+		Rule rule1 = new Rule("R1", "true", "outcome1", 0, "ch.maxant.produkte", "one", null);
+		Rule rule2 = new Rule("R1", "true", "outcome2", 1, "ch.maxant.fahrplan", "two", null);
 		List<Rule> rules = Arrays.asList(rule1, rule2);
 		
 		AbstractAction<MyInput, BigDecimal> action1 = new AbstractAction<AbstractEngineTest.MyInput, BigDecimal>("outcome1") {
@@ -128,8 +131,8 @@ public abstract class AbstractEngineTest {
 	
 	@Test
 	public void testNamespaceMatchingFailed() throws DuplicateNameException, CompileException, ParseException, ScriptException, IOException{
-		Rule rule1 = new Rule("R1", "true", "outcome1", 0, "ch.maxant.produkte", "one");
-		Rule rule2 = new Rule("R1", "true", "outcome2", 1, "ch.maxant.fahrplan", "two");
+		Rule rule1 = new Rule("R1", "true", "outcome1", 0, "ch.maxant.produkte", "one", null);
+		Rule rule2 = new Rule("R1", "true", "outcome2", 1, "ch.maxant.fahrplan", "two", null);
 		List<Rule> rules = Arrays.asList(rule1, rule2);
 		
 		AbstractAction<MyInput, BigDecimal> action1 = new AbstractAction<AbstractEngineTest.MyInput, BigDecimal>("outcome1") {
@@ -166,10 +169,13 @@ public abstract class AbstractEngineTest {
 	 */
 	@Test
 	public void testGetList() {
-		Rule rule1 = new Rule("A", "input.distance < 100", "productA", 1, "ch.maxant.produkte", "Rule for product A");
-		Rule rule2 = new Rule("B", "input.distance > 100", "productB", 2, "ch.maxant.produkte", "Rule for product B");
-		Rule rule3 = new Rule("C", "input.distance > 150", "productC", 3, "ch.maxant.produkte", "Rule for product C");
-		Rule rule4 = new Rule("D", "input.distance > 100 && (input.map[\"travelClass\"] == 1)", "productC", 4, "ch.maxant.produkte", "Rule for product C");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", TravelRequest.class);
+
+		Rule rule1 = new Rule("A", "input.distance < 100", "productA", 1, "ch.maxant.produkte", "Rule for product A", inputTypeMap);
+		Rule rule2 = new Rule("B", "input.distance > 100", "productB", 2, "ch.maxant.produkte", "Rule for product B", inputTypeMap);
+		Rule rule3 = new Rule("C", "input.distance > 150", "productC", 3, "ch.maxant.produkte", "Rule for product C", inputTypeMap);
+		Rule rule4 = new Rule("D", "input.distance > 100 && (input.map[\"travelClass\"] == 1)", "productC", 4, "ch.maxant.produkte", "Rule for product C", inputTypeMap);
 		List<Rule> rules = Arrays.asList(rule1, rule2, rule3, rule4);
 
 		try{
@@ -249,7 +255,9 @@ public abstract class AbstractEngineTest {
 	
 	@Test
 	public void testBadExpression(){
-		Rule rule = new Rule("1", "input someIllegalOperator 345", "SomeCommand", 0, "ch.maxant.produkte");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", TarifRequest.class);
+		Rule rule = new Rule("1", "input someIllegalOperator 345", "SomeCommand", 0, "ch.maxant.produkte", null, inputTypeMap);
 		List<Rule> rules = Arrays.asList(rule);
 
 		try{
@@ -269,11 +277,14 @@ public abstract class AbstractEngineTest {
 
 	@Test
 	public void testOverrideInputName() throws Exception {
-		Rule rule= new Rule("1", "jane.age > 34", "veryOld", 1, "ch.maxant.produkte");
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("jane", Person.class);
+
+		Rule rule= new Rule("1", "jane.age > 34", "veryOld", 1, "ch.maxant.produkte", null, inputTypeMap);
 		List<Rule> rules = Arrays.asList(rule);
 
-		assertEquals("veryOld", new Engine(rules, "jane", true).getBestOutcome(new Person(35)));
-		assertEquals(0, new Engine(rules, "jane", true).getMatchingRules(new Person(33)).size());
+		assertEquals("veryOld", new Engine(rules, "jane", true, false).getBestOutcome(new Person(35)));
+		assertEquals(0, new Engine(rules, "jane", true, false).getMatchingRules(new Person(33)).size());
 	}
 	
 	@Test
@@ -356,11 +367,14 @@ public abstract class AbstractEngineTest {
 	
 	@Test
 	public void testJavadocExample() throws ScriptException, IOException{
-		
-		Rule r1 = new Rule("YouthTarif", "input.person.age < 26", "YT2011", 3, "ch.maxant.someapp.tarifs");
-		Rule r2 = new Rule("SeniorTarif", "input.person.age > 59", "ST2011", 3, "ch.maxant.someapp.tarifs");
-		Rule r3 = new Rule("DefaultTarif", "!#YouthTarif && !#SeniorTarif", "DT2011", 3, "ch.maxant.someapp.tarifs");
-		Rule r4 = new Rule("LoyaltyTarif", "#DefaultTarif && input.account.ageInMonths > 24", "LT2011", 4, "ch.maxant.someapp.tarifs");
+
+		Map<String, Class> inputTypeMap = new HashMap<String, Class>();
+		inputTypeMap.put("input", TarifRequest.class);
+
+		Rule r1 = new Rule("YouthTarif", "input.person.age < 26", "YT2011", 3, "ch.maxant.someapp.tarifs", null, inputTypeMap);
+		Rule r2 = new Rule("SeniorTarif", "input.person.age > 59", "ST2011", 3, "ch.maxant.someapp.tarifs", null, inputTypeMap);
+		Rule r3 = new Rule("DefaultTarif", "!#YouthTarif && !#SeniorTarif", "DT2011", 3, "ch.maxant.someapp.tarifs", null, inputTypeMap);
+		Rule r4 = new Rule("LoyaltyTarif", "#DefaultTarif && input.account.ageInMonths > 24", "LT2011", 4, "ch.maxant.someapp.tarifs", null, inputTypeMap);
 		List<Rule> rules = Arrays.asList(r1, r2, r3, r4);
 
 		try {

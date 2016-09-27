@@ -31,7 +31,7 @@ public class RuleTest {
     public void testRuleValidation(){
         boolean success = false;
         try{
-            new Rule(null, "expression", "outcome", 1, "namespace", "description");
+            new Rule(null, "expression", "outcome", 1, "namespace", "description", null);
             success = true;
         }catch(AssertionError e){
             //expected
@@ -42,7 +42,7 @@ public class RuleTest {
 
         success = false;
         try{
-            new Rule("name", null, "outcome", 1, "namespace", "description");
+            new Rule("name", null, "outcome", 1, "namespace", "description", null);
             success = true;
         }catch(AssertionError e){
             //expected
@@ -53,7 +53,7 @@ public class RuleTest {
 
         success = false;
         try{
-            new Rule("name", "expression", "outcome", 1, null, "description");
+            new Rule("name", "expression", "outcome", 1, null, "description", null);
             success = true;
         }catch(AssertionError e){
             //expected
@@ -65,15 +65,15 @@ public class RuleTest {
     
 	@Test
 	public void testAll() {
-		Rule r01 = new Rule("name", "expression", "outcome", 1, "namespace", "description");
-		Rule r02 = new Rule("name", "expression", "outcome", 1, "namespace", "description");
-        Rule r03 = new Rule("name", "expression", null, 1, "namespace", "description");
-		Rule r04 = new Rule("name2", "expression", "outcome", 1, "namespace", "description");
-		Rule r06 = new Rule("name", "expression2", "outcome", 1, "namespace", "description");
-		Rule r08 = new Rule("name", "expression", "outcome2", 1, "namespace", "description");
-		Rule r10 = new Rule("name", "expression", "outcome", 1, "namespace2", "description");
-		Rule r11 = new Rule("name", "expression", "outcome", 2, "namespace", "descriptor");
-		Rule r12 = new Rule("name", "expression", "outcome", -1, "namespace", "description");
+		Rule r01 = new Rule("name", "expression", "outcome", 1, "namespace", "description", null);
+		Rule r02 = new Rule("name", "expression", "outcome", 1, "namespace", "description", null);
+        Rule r03 = new Rule("name", "expression", null, 1, "namespace", "description", null);
+		Rule r04 = new Rule("name2", "expression", "outcome", 1, "namespace", "description", null);
+		Rule r06 = new Rule("name", "expression2", "outcome", 1, "namespace", "description", null);
+		Rule r08 = new Rule("name", "expression", "outcome2", 1, "namespace", "description", null);
+		Rule r10 = new Rule("name", "expression", "outcome", 1, "namespace2", "description", null);
+		Rule r11 = new Rule("name", "expression", "outcome", 2, "namespace", "descriptor", null);
+		Rule r12 = new Rule("name", "expression", "outcome", -1, "namespace", "description", null);
 		
 		assertEquals("name", r01.getName());
 		assertEquals("expression", r01.getExpression());
