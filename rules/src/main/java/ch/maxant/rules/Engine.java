@@ -481,12 +481,18 @@ public class Engine {
 					continue;
 				}
 			}
-			
-			Object o = MVEL.executeExpression(r.getCompiled(), vars);
+
+			Object o = null;
+			try {
+				o = MVEL.executeExpression(r.getCompiled(), vars);
+			} catch(Exception e) {
+				log.severe("Exception executing Rule " + r.getRule().getFullyQualifiedName() + " Exception: " + e);
+				continue;
+			}
 			if(o == null || !o.getClass().isAssignableFrom(Boolean.class)) {
 				String message = "Expression for Rule " + r.getRule().getFullyQualifiedName() + " did not produce a Boolean result";
 				log.warning(message);
-				throw new RuntimeException(message);
+				continue;
 			}
 			String msg = r.getRule().getFullyQualifiedName() + "-{" + r.getRule().getExpression() + "}";
 			if(String.valueOf(o).equals("true")){
